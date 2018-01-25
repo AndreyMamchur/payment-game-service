@@ -1,44 +1,45 @@
 package com.paymentgameservice.service;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import org.springframework.stereotype.Component;
+
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+@Component
 public class DoRequest {
     final static String requestUrl = "https://test.lgaming.net/external/extended";
 
-    public static String putXml(String xml){
+    public String putXml(String xml){
         String response = "";
         HttpURLConnection connection = null;
+        OutputStreamWriter outputStreamWriter = null;
         try{
             connection = (HttpURLConnection) new URL(requestUrl).openConnection();
-            connection.setConnectTimeout(250);
-            connection.setReadTimeout(250);
+            connection.setConnectTimeout(20000);
+            connection.setReadTimeout(20000);
             connection.setDoOutput(true);
+            connection.setDoInput(true);
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "application/xml");
+            connection.setRequestProperty("Content-Type", "text/xml");
 
-            OutputStream outputStream = connection.getOutputStream();
-            outputStream.write(xml.getBytes());
-            outputStream.flush();
-
-            if (connection.getResponseCode() != HttpURLConnection.HTTP_CREATED){
-                throw new RuntimeException("Failed : HTTP error code : "
-                        + connection.getResponseCode());
-            }
+            outputStreamWriter = new OutputStreamWriter(connection.getOutputStream());
+            outputStreamWriter.write(xml);
+            outputStreamWriter.flush();
+            outputStreamWriter.close();
 
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
                     connection.getInputStream()));
             System.out.println("Output from Server .....\n");
-            while ((response = bufferedReader.readLine()) != null){
+            String line;
+            while ((line = bufferedReader.readLine()) != null){
                 System.out.println(response);
+                response += line;
             }
-
+            bufferedReader.close();
             connection.disconnect();
+            return response;
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
