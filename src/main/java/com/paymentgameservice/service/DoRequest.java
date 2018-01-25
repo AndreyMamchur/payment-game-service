@@ -31,7 +31,6 @@ public class DoRequest {
 
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(
                     connection.getInputStream()));
-            System.out.println("Output from Server .....\n");
             String line;
             while ((line = bufferedReader.readLine()) != null){
                 System.out.println(response);

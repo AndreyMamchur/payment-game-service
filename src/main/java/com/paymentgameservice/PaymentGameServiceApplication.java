@@ -48,10 +48,13 @@ public class PaymentGameServiceApplication implements CommandLineRunner {
 
 		//маршалинг объекта в XML
 		String xml = xmlWriterReader.write(request);
+		System.out.println();
+		System.out.println("----------FIRST REQUEST----------");
 		System.out.println(xml);
 
 		//делаю запрос на сервер с XML файлом без кодировки. В ответ получаю Certificate error!
 		String responseString = doRequest.putXml(xml);
+		System.out.println("----------FIRST RESPONSE----------");
 		System.out.println(responseString);
 		System.out.println();
 
@@ -78,6 +81,7 @@ public class PaymentGameServiceApplication implements CommandLineRunner {
 
 		//маршалинг объекта в XML
 		xml = xmlWriterReader.write(request);
+		System.out.println("----------SECOND REQUEST----------");
 		System.out.println(xml);
 
 		request.setPaymentList(null);
@@ -86,6 +90,7 @@ public class PaymentGameServiceApplication implements CommandLineRunner {
 		Status status = new Status(40);
 		request.setStatus(status);
 		xml = xmlWriterReader.write(request);
+		System.out.println("----------THIRD REQUEST----------");
 		System.out.println(xml);
 
 		//имитация полученых и расшифрованых данных
@@ -98,6 +103,7 @@ public class PaymentGameServiceApplication implements CommandLineRunner {
 
 		//произвожу демаршалинг данных в объект
 		Response response1 = xmlWriterReader.read(responseString);
+		System.out.println("----------FIRST SIMULATE RESPONSE----------");
 		System.out.println(response1);
 
 		responseString = "<response> \n" +
@@ -105,6 +111,7 @@ public class PaymentGameServiceApplication implements CommandLineRunner {
 				"<result id=\"14547\" state=\"40\" substate=\"4\" code=\"0\" final=\"0\" trans=\"312\"/> \n" +
 				"</response>";
 		response1 = xmlWriterReader.read(responseString);
+		System.out.println("----------SECOND SIMULATE RESPONSE----------");
 		System.out.println(response1);
 
 		responseString = "<response> \n" +
@@ -112,6 +119,7 @@ public class PaymentGameServiceApplication implements CommandLineRunner {
 				"<result id=\"125\" state=\"40\" substate=\"4\" code=\"0\" final=\"0\" trans=\"312\"/> \n" +
 				"</response>";
 		response1 = xmlWriterReader.read(responseString);
+		System.out.println("----------THIRD SIMULATE RESPONSE----------");
 		System.out.println(response1);
 
 
