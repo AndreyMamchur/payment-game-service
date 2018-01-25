@@ -60,8 +60,8 @@ public class PaymentGameServiceApplication implements CommandLineRunner {
 
 //		String encryptionXml = encryptionDecryptionXml.sign(xml);
 //		System.out.println(encryptionXml);
-
 //		Boolean verify1 = encryptionDecryptionXml.verify(xml, "sdfsfsfd");
+
 		request.setVerify(null);
 
 		//Собираю второй request: один payment с атрибутом и один без
