@@ -18,13 +18,16 @@ public class XmlWriterReader {
     static final String PACKAGEREQUEST = Request.class.getPackage().getName();
     static final String PACKAGERESPONSE = Response.class.getPackage().getName();
 
+
+    //маршалинг объекта в XML
     public String write(@NonNull Request request) {
 
         try (StringWriter stringWriter = new StringWriter()) {
             JAXBContext jc = JAXBContext.newInstance(PACKAGEREQUEST);
             Marshaller m = jc.createMarshaller();
-            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+//            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             m.marshal(request, stringWriter);
+
             return stringWriter.toString();
 
         } catch (JAXBException | IOException  e) {
@@ -33,6 +36,7 @@ public class XmlWriterReader {
         return null;
     }
 
+    //демаршалинг
     public Response read(@NonNull String responseString){
         try (StringReader stringReader = new StringReader(responseString)) {
             JAXBContext jc = JAXBContext.newInstance(PACKAGERESPONSE);

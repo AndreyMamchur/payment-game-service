@@ -1,5 +1,6 @@
 package com.paymentgameservice.service;
 
+import lombok.NonNull;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.bouncycastle.asn1.ASN1Integer;
 import org.bouncycastle.asn1.ASN1Sequence;
@@ -21,7 +22,8 @@ public class EncryptionDecryptionXml {
     public static final String privateFile = "src\\main\\resources\\private.pem";
     public static final String publicFile = "src\\main\\resources\\public.pem";
 
-    public String sign(String message) throws SignatureException {
+    //подписывает сообщение
+    public String sign(@NonNull String message) throws SignatureException {
         try {
             Signature sign = Signature.getInstance("SHA1withRSA");
             String key = readFileToString(privateFile);
@@ -34,7 +36,8 @@ public class EncryptionDecryptionXml {
         }
     }
 
-    public boolean verify(String message, String signature) throws SignatureException{
+    //проверяет ответ
+    public boolean verify(@NonNull String message, @NonNull String signature) throws SignatureException{
         try {
             Signature sign = Signature.getInstance("SHA1withRSA");
             String key = readFileToString(publicFile);
@@ -48,7 +51,8 @@ public class EncryptionDecryptionXml {
     }
 
 
-    public String readFileToString(String nameOfFile){
+    //читает ключ в String
+    public String readFileToString(@NonNull String nameOfFile){
         String key="";
         List<String> lines = null;
         try {
@@ -63,11 +67,12 @@ public class EncryptionDecryptionXml {
         return key;
     }
 
-    public PublicKey getPublicKeyFromString(String key){
-        key = key.replaceAll("\\n", "").replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "");
-        System.out.println(key);
+    //получает PublicKey из строки
+    public PublicKey getPublicKeyFromString(@NonNull String publicKeyString){
+        publicKeyString = publicKeyString.replaceAll("\\n", "").replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "");
+        System.out.println(publicKeyString);
         try {
-            byte[] publicKeyBytes=Base64.decodeBase64(key);
+            byte[] publicKeyBytes=Base64.decodeBase64(publicKeyString);
             KeyFactory keyFactory=KeyFactory.getInstance("RSA");
             KeySpec publicSpec=new X509EncodedKeySpec(publicKeyBytes);
             return keyFactory.generatePublic(publicSpec);
@@ -77,12 +82,14 @@ public class EncryptionDecryptionXml {
         }
     }
 
-    public PrivateKey getPrivateKeyFromString(String privateKeyString){
-        String privKeyPEM = privateKeyString.replace(
-                "-----BEGIN RSA PRIVATE KEY-----\n", "")
+    //получает PrivateKey из строки
+    public PrivateKey getPrivateKeyFromString(@NonNull String privateKeyString){
+        privateKeyString = privateKeyString
+                .replaceAll("\\n", "")
+                .replace("-----BEGIN RSA PRIVATE KEY-----", "")
                 .replace("-----END RSA PRIVATE KEY-----", "");
 
-        byte[] encodedPrivateKey = Base64.decodeBase64(privKeyPEM);
+        byte[] encodedPrivateKey = Base64.decodeBase64(privateKeyString);
 
         try {
             ASN1Sequence primitive = (ASN1Sequence) ASN1Sequence

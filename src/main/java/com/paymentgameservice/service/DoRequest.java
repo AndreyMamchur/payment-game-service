@@ -1,5 +1,6 @@
 package com.paymentgameservice.service;
 
+import lombok.NonNull;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -11,7 +12,8 @@ import java.net.URL;
 public class DoRequest {
     final static String requestUrl = "https://test.lgaming.net/external/extended";
 
-    public String putXml(String xml){
+    //отправляет запрос и читает ответ
+    public String putXml(@NonNull String signXml, @NonNull String xml){
         String response = "";
         HttpURLConnection connection = null;
         OutputStreamWriter outputStreamWriter = null;
@@ -22,7 +24,8 @@ public class DoRequest {
             connection.setDoOutput(true);
             connection.setDoInput(true);
             connection.setRequestMethod("POST");
-            connection.setRequestProperty("Content-Type", "text/xml");
+            connection.setRequestProperty("PayLogic-Signature", signXml);
+            connection.setRequestProperty("Content-Type", "text/xml;charset=UTF-8");
 
             outputStreamWriter = new OutputStreamWriter(connection.getOutputStream());
             outputStreamWriter.write(xml);
@@ -36,6 +39,10 @@ public class DoRequest {
                 System.out.println(response);
                 response += line;
             }
+            System.out.println("----------RESPONSE INFORMATION----------");
+            System.out.println( "Permission: " + connection.getPermission());
+            System.out.println(connection.getHeaderFields());
+            System.out.println();
             bufferedReader.close();
             connection.disconnect();
             return response;

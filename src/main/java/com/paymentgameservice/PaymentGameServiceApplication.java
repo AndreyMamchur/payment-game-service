@@ -39,7 +39,7 @@ public class PaymentGameServiceApplication implements CommandLineRunner {
 
 		//Собираю первый request: verify с одним attribute
 		Request request = new Request();
-		Verify verify = new Verify(1, "9132345678");
+		Verify verify = new Verify(4390, "85");
 		request.setVerify(verify);
 		Attribute attribute = new Attribute("email", "info@rol.ru");
 		List<Attribute> attributes = new ArrayList<>();
@@ -52,27 +52,29 @@ public class PaymentGameServiceApplication implements CommandLineRunner {
 		System.out.println("----------FIRST REQUEST----------");
 		System.out.println(xml);
 
-		//делаю запрос на сервер с XML файлом без кодировки. В ответ получаю Certificate error!
-		String responseString = doRequest.putXml(xml);
+		//кодировка сообщения
+		String signXml = encryptionDecryptionXml.sign(xml);
+		System.out.println("----------SIGNATURE----------");
+		System.out.println(signXml);
+		System.out.println();
+
+		//делаю запрос на сервер. В ответ получаю "Signature error!"
+		String responseString = doRequest.putXml(signXml, xml);
 		System.out.println("----------FIRST RESPONSE----------");
 		System.out.println(responseString);
 		System.out.println();
-
-//		String encryptionXml = encryptionDecryptionXml.sign(xml);
-//		System.out.println(encryptionXml);
-//		Boolean verify1 = encryptionDecryptionXml.verify(xml, "sdfsfsfd");
 
 		request.setVerify(null);
 
 		//Собираю второй request: один payment с атрибутом и один без
 		Payment payment1 = new Payment(14546, 1000, 17235, 1, "9132345678"
 				, of(LocalDateTime.of(2007, 10, 12, 12, 0, 0)
-				, ZoneId.of("+03:00"))
+				, ZoneId.of("+0300"))
 				, attributes);
 
 		Payment payment2 = new Payment(14547, 1500, 17235, 2, "12345"
 				, of(LocalDateTime.of(2007, 10, 12, 12, 0, 0)
-				, ZoneId.of("+03:00")));
+				, ZoneId.of("+0300")));
 
 		List<Payment> paymentList = new ArrayList<>();
 		paymentList.add(payment1);
@@ -83,6 +85,19 @@ public class PaymentGameServiceApplication implements CommandLineRunner {
 		xml = xmlWriterReader.write(request);
 		System.out.println("----------SECOND REQUEST----------");
 		System.out.println(xml);
+		System.out.println();
+
+		//кодировка сообщения
+		signXml = encryptionDecryptionXml.sign(xml);
+		System.out.println("----------SIGNATURE----------");
+		System.out.println(signXml);
+		System.out.println();
+
+		//делаю запрос на сервер. В ответ получаю "Xml parse error: Unparseable date: "2007-10-12T12:00:00+03:00""
+		responseString = doRequest.putXml(signXml, xml);
+		System.out.println("----------SECOND RESPONSE----------");
+		System.out.println(responseString);
+		System.out.println();
 
 		request.setPaymentList(null);
 
@@ -92,6 +107,19 @@ public class PaymentGameServiceApplication implements CommandLineRunner {
 		xml = xmlWriterReader.write(request);
 		System.out.println("----------THIRD REQUEST----------");
 		System.out.println(xml);
+		System.out.println();
+
+		//кодтровка сообщения
+		signXml = encryptionDecryptionXml.sign(xml);
+		System.out.println("----------SIGNATURE----------");
+		System.out.println(signXml);
+		System.out.println();
+
+		//делаю запрос на сервер. В ответ получаю "Signature error!"
+		responseString = doRequest.putXml(signXml, xml);
+		System.out.println("----------THIRD RESPONSE----------");
+		System.out.println(responseString);
+		System.out.println();
 
 		//имитация полученых и расшифрованых данных
 		responseString = "<response> \n" +
