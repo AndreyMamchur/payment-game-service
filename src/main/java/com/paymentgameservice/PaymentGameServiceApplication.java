@@ -59,7 +59,8 @@ public class PaymentGameServiceApplication implements CommandLineRunner {
 		System.out.println();
 
 		//делаю запрос на сервер. В ответ получаю "Signature error!"
-		String responseString = doRequest.putXml(signXml, xml);
+//		String responseString = doRequest.putXml(signXml, xml);
+		String responseString = doRequest.postXml(signXml, xml);
 		System.out.println("----------FIRST RESPONSE----------");
 		System.out.println(responseString);
 		System.out.println();

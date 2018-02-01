@@ -1,6 +1,17 @@
 package com.paymentgameservice.service;
 
 import lombok.NonNull;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -56,5 +67,45 @@ public class DoRequest {
             }
         }
         return response;
+    }
+
+    public String postXml(@NonNull String signXml, @NonNull String xml){
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        HttpPost httppost = new HttpPost(requestUrl);
+        httppost.addHeader("PayLogic-Signature", signXml);
+        httppost.addHeader("Content-Type", "text/xml;charset=UTF-8");
+        HttpEntity entity = null;
+        try {
+            entity = new ByteArrayEntity(xml.getBytes("UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        httppost.setEntity(entity);
+
+        RequestConfig requestConfig = RequestConfig.custom()
+                .setSocketTimeout(20000)
+                .setConnectTimeout(20000)
+                .setConnectionRequestTimeout(20000)
+                .build();
+        httppost.setConfig(requestConfig);
+
+        System.out.println("executing request " + httppost.getURI());
+        CloseableHttpResponse response = null;
+        try {
+            response = httpclient.execute(httppost);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String result = "";
+        try {
+            result = EntityUtils.toString(response.getEntity());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        for (Header header:response.getAllHeaders()) {
+            System.out.println(header);
+        }
+
+        return result;
     }
 }

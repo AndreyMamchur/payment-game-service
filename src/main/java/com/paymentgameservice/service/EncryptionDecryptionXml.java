@@ -2,8 +2,12 @@ package com.paymentgameservice.service;
 
 import lombok.NonNull;
 import org.apache.tomcat.util.codec.binary.Base64;
-import org.bouncycastle.asn1.ASN1Integer;
-import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.*;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.openssl.PEMException;
+import org.bouncycastle.openssl.PEMKeyPair;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.springframework.stereotype.Component;
 
 import java.io.*;
@@ -28,6 +32,7 @@ public class EncryptionDecryptionXml {
             Signature sign = Signature.getInstance("SHA1withRSA");
             String key = readFileToString(privateFile);
             PrivateKey privateKey = getPrivateKeyFromString(key);
+//            PrivateKey privateKey = getPrivateKey();
             sign.initSign(privateKey);
             sign.update(message.getBytes("UTF-8"));
             return new String(Base64.encodeBase64(sign.sign()),"UTF-8");
@@ -116,5 +121,31 @@ public class EncryptionDecryptionXml {
         } catch (InvalidKeySpecException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    public PrivateKey getPrivateKey(){
+        Security.addProvider(new BouncyCastleProvider());
+        File privateKeyFile = new File("src\\main\\resources", "private.pem");
+        PEMParser pemParser = null;
+        try {
+            pemParser = new PEMParser(new FileReader(privateKeyFile));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("SHA-1");
+        Object object = null;
+        try {
+            object = pemParser.readObject();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        KeyPair kp = null;
+        try {
+            kp = converter.getKeyPair((PEMKeyPair) object);
+        } catch (PEMException e) {
+            e.printStackTrace();
+        }
+        PrivateKey privateKey = kp.getPrivate();
+    return privateKey;
     }
 }
